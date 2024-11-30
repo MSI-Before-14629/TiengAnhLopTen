@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Speed Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    #text-to-type {
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    #input-text {
+      width: 80%;
+      padding: 10px;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    #time {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Typing Speed Test</h2>
+
+<p>Type the word below as fast as you can and see your typing speed.</p>
+
+<div id="text-to-type">Loading...</div>
+
+<input type="text" id="input-text" placeholder="Start typing here..." oninput="checkInput()">
+
+<p id="time">Time: <span id="time-left">60</span> seconds</p>
+
+<p id="result"></p>
+
+<script>
+  let startTime, endTime;
+  let timer;
+  let timeLeft = 60;  // Thời gian chơi (60 giây)
+  let targetWord;  // Từ mục tiêu được chọn ngẫu nhiên
+  const inputText = document.getElementById("input-text");
+  const timeLeftElement = document.getElementById("time-left");
+  const resultElement = document.getElementById("result");
+  const textToTypeElement = document.getElementById("text-to-type");
+
+  // Đọc dữ liệu từ file JSON (vocabulary.json)
+  fetch('vocabulary.json')  // Đảm bảo rằng đường dẫn đúng
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to load file');
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Đảm bảo rằng bạn chọn đúng Unit và từ vựng trong unit
+    const wordList = data["Unit 10: Space Travel"];  // Lấy danh sách từ vựng trong Unit 10
+    targetWord = wordList[Math.floor(Math.random() * wordList.length)].word;  // Chọn từ ngẫu nhiên
+    textToTypeElement.textContent = targetWord;  // Hiển thị từ cần gõ
+  })
+  .catch(error => {
+    console.error("Error loading vocabulary data:", error);
+    textToTypeElement.textContent = "Failed to load vocabulary data.";  // Hiển thị thông báo lỗi nếu không tải được dữ liệu
+  });
+
+  // Bắt đầu chơi khi người dùng bắt đầu gõ
+  inputText.addEventListener("focus", startTimer);
+
+  function startTimer() {
+    if (!startTime) {
+      startTime = new Date().getTime();  // Lưu thời gian bắt đầu
+      timer = setInterval(updateTime, 1000);  // Cập nhật thời gian mỗi giây
+    }
+  }
+
+  function updateTime() {
+    timeLeft -= 1;
+    timeLeftElement.textContent = timeLeft;
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }
+
+  // Kiểm tra khi người chơi gõ
+  function checkInput() {
+    const typedText = inputText.value.trim();  // Lấy văn bản người dùng gõ (dùng trim() để loại bỏ khoảng trắng thừa)
+
+    if (typedText === targetWord) {
+      endGame();
+    }
+  }
+
+  // Kết thúc trò chơi
+  function endGame() {
+    clearInterval(timer);  // Dừng đồng hồ đếm ngược
+    endTime = new Date().getTime();  // Lưu thời gian kết thúc
+    const timeTaken = (endTime - startTime) / 1000;  // Tính thời gian chơi (giây)
+
+    // Tính tốc độ gõ (từ/phút)
+    const typingSpeed = Math.round((1 / timeTaken) * 60);
+
+    resultElement.textContent = `Your typing speed is: ${typingSpeed} words per minute.`;
+    timeLeftElement.textContent = 0;
+  }
+</script>
+
+</body>
+</html>
