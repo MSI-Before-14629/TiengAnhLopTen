@@ -58,22 +58,26 @@
 
   // Đọc dữ liệu từ file JSON (vocabulary.json)
   fetch('vocabulary.json')  // Đảm bảo rằng đường dẫn đúng
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Failed to load file');
-    }
-    return response.json();
-  })
-  .then(data => {
-    // Đảm bảo rằng bạn chọn đúng Unit và từ vựng trong unit
-    const wordList = data["Unit 10: Space Travel"];  // Lấy danh sách từ vựng trong Unit 10
-    targetWord = wordList[Math.floor(Math.random() * wordList.length)].word;  // Chọn từ ngẫu nhiên
-    textToTypeElement.textContent = targetWord;  // Hiển thị từ cần gõ
-  })
-  .catch(error => {
-    console.error("Error loading vocabulary data:", error);
-    textToTypeElement.textContent = "Failed to load vocabulary data.";  // Hiển thị thông báo lỗi nếu không tải được dữ liệu
-  });
+.then(response => {
+  if (!response.ok) {
+    throw new Error('Failed to load file');
+  }
+  return response.json();
+})
+.then(data => {
+  // Lấy tất cả các unit trong dữ liệu
+  const units = Object.keys(data);  // Lấy tên các unit từ dữ liệu JSON
+  const randomUnit = units[Math.floor(Math.random() * units.length)];  // Chọn một unit ngẫu nhiên
+  
+  // Lấy từ vựng từ unit ngẫu nhiên
+  const wordList = data[randomUnit];
+  targetWord = wordList[Math.floor(Math.random() * wordList.length)].word;  // Chọn từ ngẫu nhiên
+  textToTypeElement.textContent = targetWord;  // Hiển thị từ cần gõ
+})
+.catch(error => {
+  console.error("Error loading vocabulary data:", error);
+  textToTypeElement.textContent = "Failed to load vocabulary data.";  // Hiển thị thông báo lỗi nếu không tải được dữ liệu
+});
 
   // Bắt đầu chơi khi người dùng bắt đầu gõ
   inputText.addEventListener("focus", startTimer);
